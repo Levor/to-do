@@ -1,0 +1,35 @@
+version: '3'
+services:
+  to-do:
+    build:
+      context: ../to-do
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+    networks:
+      - local_net
+  db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'secret'
+    ports:
+      - 3306:3306
+    expose:
+      - '3306'
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+    networks:
+      - local_net
+volumes:
+  db_data:
+    driver: local
+networks:
+  local_net:
