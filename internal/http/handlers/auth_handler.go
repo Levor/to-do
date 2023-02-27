@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/levor/to-do/internal/config"
+	"github.com/levor/to-do/internal/models"
 	"github.com/levor/to-do/internal/repositories"
 	"gopkg.in/errgo.v2/errors"
 	"net/http"
@@ -122,5 +123,28 @@ func (ah *AuthHandler) Logout(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{Name: "session_token", Value: "", Expires: time.Now()})
 	c.JSON(http.StatusOK, gin.H{
 		"status": "Logout successful",
+	})
+}
+
+func (ah *AuthHandler) Signup(c *gin.Context) {
+	f := new(models.User)
+	err := c.BindJSON(&f)
+	if err != nil {
+		HandleError(err, c)
+	}
+	u, _ := ah.ur.FindByLogin(f.Login)
+	if u.Login != f.Login {
+		err = ah.ur.Create(f)
+		if err != nil {
+			HandleError(err, c)
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status": "User created successful",
+		})
+		return
+	}
+	c.JSON(http.StatusBadRequest, gin.H{
+		"status": "Login already exist",
 	})
 }

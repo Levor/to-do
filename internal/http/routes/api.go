@@ -29,9 +29,14 @@ func API(
 					"version": "1.0.0",
 				})
 			})
-			v1Group.GET("/login", authHandler.Login)
-			v1Group.GET("/refresh", authHandler.Refresh)
-			v1Group.GET("/logout", authHandler.Logout)
+			authGroup := v1Group.Group("/auth")
+			{
+				authGroup.GET("/login", authHandler.Login)
+				authGroup.GET("/refresh", authHandler.Refresh)
+				authGroup.GET("/logout", authHandler.Logout)
+				authGroup.GET("/signup", authHandler.Signup)
+			}
+
 		}
 	}
 	return r
